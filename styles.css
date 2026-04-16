@@ -1298,6 +1298,35 @@ body[data-track="light"] .btn-sheet-switch {
   border-color: var(--light-border);
 }
 
+/* ---- Ambient sound bar ---- */
+.ambient-bar {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+  padding: 4px 0;
+}
+
+.ambient-btn {
+  font-size: 1.25rem;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  background: var(--surface-2);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+.ambient-btn:hover { background: var(--surface-3); }
+
+#app[data-track="deep"]   .ambient-btn.active { border-color: var(--deep-border);   background: var(--deep-bg); }
+#app[data-track="light"]  .ambient-btn.active { border-color: var(--light-border);  background: var(--light-bg); }
+#app[data-track="gaming"] .ambient-btn.active { border-color: var(--gaming-border); background: var(--gaming-bg); }
+
 /* ---- Back to menu button ---- */
 .btn-back-to-menu {
   background: none;

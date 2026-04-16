@@ -98,6 +98,11 @@ let switchStayTimeout = null;
 let extraTimeAdded = 0;
 let pendingAddTime = 0;
 
+// ---- AMBIENT SOUND STATE ----
+let ambientCtx   = null;
+let ambientNodes = [];   // all nodes created for current sound (for cleanup)
+let ambientType  = null; // current active sound type, or null
+
 // ---- SPEECH ----
 let voices = [];
 
@@ -601,6 +606,8 @@ function doReset() {
   showPausedUI(false);
   clearSession();
   updateAddTimeButtons();
+  stopAmbient();
+  updateAmbientButtons(null);
 }
 
 function onSessionEnd() {
@@ -667,6 +674,8 @@ function selectTrack(trackKey) {
   pendingSpeak = [];
   extraTimeAdded  = 0;
   dismissSwitchStay();
+  stopAmbient();
+  updateAmbientButtons(null);
 
   document.getElementById('app').dataset.track = trackKey;
   document.body.dataset.track = trackKey;
@@ -961,6 +970,174 @@ function returnSwitchTrack() {
 function returnDone() {
   currentTrack = null;
   showScreen('start');
+}
+
+// ============================================================
+// AMBIENT SOUND
+// ============================================================
+
+function createNoiseBuffer(ctx, type) {
+  const bufLen = ctx.sampleRate * 3;
+  const buf    = ctx.createBuffer(1, bufLen, ctx.sampleRate);
+  const data   = buf.getChannelData(0);
+  if (type === 'brown') {
+    let last = 0;
+    for (let i = 0; i < bufLen; i++) {
+      const white = Math.random() * 2 - 1;
+      last = (last + 0.02 * white) / 1.02;
+      data[i] = last * 8;
+    }
+  } else {
+    for (let i = 0; i < bufLen; i++) data[i] = Math.random() * 2 - 1;
+  }
+  return buf;
+}
+
+function stopAmbient() {
+  ambientNodes.forEach(n => {
+    try { if (n.stop) n.stop(); } catch (_) {}
+    try { n.disconnect(); }       catch (_) {}
+  });
+  ambientNodes = [];
+  ambientType  = null;
+}
+
+function updateAmbientButtons(type) {
+  document.querySelectorAll('.ambient-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.sound === (type || 'off'));
+  });
+}
+
+function selectAmbient(type) {
+  if (ambientType === type) { stopAmbient(); updateAmbientButtons(null); return; }
+  stopAmbient();
+  if (type === 'off') { updateAmbientButtons(null); return; }
+
+  if (!ambientCtx) ambientCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (ambientCtx.state === 'suspended') ambientCtx.resume();
+
+  ambientType = type;
+  updateAmbientButtons(type);
+
+  const master = ambientCtx.createGain();
+  master.gain.value = 0.28;
+  master.connect(ambientCtx.destination);
+  ambientNodes.push(master);
+
+  switch (type) {
+    case 'rain':   buildRain(ambientCtx, master);   break;
+    case 'cafe':   buildCafe(ambientCtx, master);   break;
+    case 'waves':  buildWaves(ambientCtx, master);  break;
+    case 'forest': buildForest(ambientCtx, master); break;
+  }
+}
+
+function buildRain(ctx, dest) {
+  const src = ctx.createBufferSource();
+  src.buffer = createNoiseBuffer(ctx, 'white');
+  src.loop   = true;
+
+  const filter = ctx.createBiquadFilter();
+  filter.type            = 'lowpass';
+  filter.frequency.value = 1800;
+  filter.Q.value         = 0.5;
+
+  const gain = ctx.createGain();
+  gain.gain.value = 0.65;
+
+  const lfo     = ctx.createOscillator();
+  const lfoGain = ctx.createGain();
+  lfo.frequency.value = 0.05;
+  lfoGain.gain.value  = 0.14;
+  lfo.connect(lfoGain);
+  lfoGain.connect(gain.gain);
+
+  src.connect(filter); filter.connect(gain); gain.connect(dest);
+  lfo.start(); src.start();
+  ambientNodes.push(src, filter, gain, lfo, lfoGain);
+}
+
+function buildCafe(ctx, dest) {
+  const src = ctx.createBufferSource();
+  src.buffer = createNoiseBuffer(ctx, 'brown');
+  src.loop   = true;
+
+  const filter = ctx.createBiquadFilter();
+  filter.type            = 'bandpass';
+  filter.frequency.value = 700;
+  filter.Q.value         = 0.7;
+
+  const gain = ctx.createGain();
+  gain.gain.value = 1.6;
+
+  src.connect(filter); filter.connect(gain); gain.connect(dest);
+  src.start();
+  ambientNodes.push(src, filter, gain);
+}
+
+function buildWaves(ctx, dest) {
+  const src = ctx.createBufferSource();
+  src.buffer = createNoiseBuffer(ctx, 'white');
+  src.loop   = true;
+
+  const filter = ctx.createBiquadFilter();
+  filter.type            = 'lowpass';
+  filter.frequency.value = 650;
+  filter.Q.value         = 1.2;
+
+  const gain = ctx.createGain();
+  gain.gain.value = 0.45;
+
+  const lfo     = ctx.createOscillator();
+  const lfoGain = ctx.createGain();
+  lfo.frequency.value = 0.12;
+  lfoGain.gain.value  = 0.38;
+  lfo.connect(lfoGain);
+  lfoGain.connect(gain.gain);
+
+  src.connect(filter); filter.connect(gain); gain.connect(dest);
+  lfo.start(); src.start();
+  ambientNodes.push(src, filter, gain, lfo, lfoGain);
+}
+
+function buildForest(ctx, dest) {
+  // Base: brown noise through lowpass
+  const base = ctx.createBufferSource();
+  base.buffer = createNoiseBuffer(ctx, 'brown');
+  base.loop   = true;
+
+  const baseFilter = ctx.createBiquadFilter();
+  baseFilter.type            = 'lowpass';
+  baseFilter.frequency.value = 1400;
+
+  const baseGain = ctx.createGain();
+  baseGain.gain.value = 1.1;
+
+  base.connect(baseFilter); baseFilter.connect(baseGain); baseGain.connect(dest);
+
+  // Shimmer: high-pass white noise for bird-like texture
+  const shimmer = ctx.createBufferSource();
+  shimmer.buffer = createNoiseBuffer(ctx, 'white');
+  shimmer.loop   = true;
+
+  const shimFilter = ctx.createBiquadFilter();
+  shimFilter.type            = 'highpass';
+  shimFilter.frequency.value = 4500;
+
+  const shimGain = ctx.createGain();
+  shimGain.gain.value = 0.07;
+
+  const lfo     = ctx.createOscillator();
+  const lfoGain = ctx.createGain();
+  lfo.frequency.value = 0.04;
+  lfoGain.gain.value  = 0.05;
+  lfo.connect(lfoGain);
+  lfoGain.connect(shimGain.gain);
+
+  shimmer.connect(shimFilter); shimFilter.connect(shimGain); shimGain.connect(dest);
+
+  lfo.start(); base.start(); shimmer.start();
+  ambientNodes.push(base, baseFilter, baseGain, shimmer, shimFilter, shimGain, lfo, lfoGain);
 }
 
 // ============================================================

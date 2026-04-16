@@ -77,6 +77,15 @@
         <!-- Task list -->
         <div id="task-list" class="task-list" role="list" aria-label="Session tasks"></div>
 
+        <!-- Ambient sound -->
+        <div class="ambient-bar" role="group" aria-label="Ambient sound">
+          <button class="ambient-btn active" data-sound="off" onclick="selectAmbient('off')" title="Off">&#128263;</button>
+          <button class="ambient-btn" data-sound="rain" onclick="selectAmbient('rain')" title="Rain">&#127783;&#65039;</button>
+          <button class="ambient-btn" data-sound="cafe" onclick="selectAmbient('cafe')" title="Café">&#9749;</button>
+          <button class="ambient-btn" data-sound="waves" onclick="selectAmbient('waves')" title="Waves">&#127754;</button>
+          <button class="ambient-btn" data-sound="forest" onclick="selectAmbient('forest')" title="Forest">&#127807;</button>
+        </div>
+
         <!-- Timer ring -->
         <div class="timer-section">
           <div class="timer-ring-container" role="timer" aria-live="polite" aria-label="Time remaining">
