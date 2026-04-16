@@ -98,6 +98,10 @@ let switchStayTimeout = null;
 let extraTimeAdded = 0;
 let pendingAddTime = 0;
 
+// ---- AUTO-TRANSITION STATE ----
+let autoTransitionTimeout  = null;
+let autoStartNextSession   = false;
+
 // ---- AMBIENT SOUND STATE ----
 let ambientCtx   = null;
 let ambientNodes = [];   // all nodes created for current sound (for cleanup)
@@ -593,6 +597,7 @@ function confirmReset() {
 }
 
 function doReset() {
+  cancelAutoTransition();
   stopTick();
   clearNudgeTimeouts();
   timerState = 'idle';
@@ -608,6 +613,30 @@ function doReset() {
   updateAddTimeButtons();
   stopAmbient();
   updateAmbientButtons(null);
+}
+
+function scheduleAutoTransition(fn, delay) {
+  cancelAutoTransition();
+  autoTransitionTimeout = setTimeout(() => {
+    autoTransitionTimeout = null;
+    document.removeEventListener('touchstart', cancelAutoTransition);
+    document.removeEventListener('click',      cancelAutoTransition);
+    fn();
+  }, delay);
+  // Short wait so the tap that triggered the end doesn't immediately cancel
+  setTimeout(() => {
+    document.addEventListener('touchstart', cancelAutoTransition, { once: true });
+    document.addEventListener('click',      cancelAutoTransition, { once: true });
+  }, 400);
+}
+
+function cancelAutoTransition() {
+  if (autoTransitionTimeout) {
+    clearTimeout(autoTransitionTimeout);
+    autoTransitionTimeout = null;
+  }
+  document.removeEventListener('touchstart', cancelAutoTransition);
+  document.removeEventListener('click',      cancelAutoTransition);
 }
 
 function onSessionEnd() {
@@ -628,7 +657,7 @@ function onSessionEnd() {
     pendingSpeak.push(msg);
   }
 
-  setTimeout(() => showScreen('refresh'), 3000);
+  scheduleAutoTransition(() => showScreen('refresh'), 3000);
 }
 
 function updateStartPauseButton() {
@@ -693,6 +722,10 @@ function selectTrack(trackKey) {
   updateAddTimeButtons();
 
   showScreen('active');
+  if (autoStartNextSession) {
+    autoStartNextSession = false;
+    startSession();
+  }
 }
 
 // ============================================================
@@ -1004,7 +1037,7 @@ function tickRefresh() {
       // Show replay prompt instead of auto-transitioning
       document.getElementById('gaming-replay-prompt').classList.remove('hidden');
     } else {
-      setTimeout(() => finishRefresh(), 3000);
+      scheduleAutoTransition(() => finishRefresh(), 3000);
     }
   }
 }
@@ -1064,15 +1097,17 @@ function finishRefresh() {
 function returnSameTrack() {
   if (!currentTrack) { showScreen('start'); return; }
   selectTrack(currentTrack);
+  startSession();
 }
 
 function returnSwitchTrack() {
+  autoStartNextSession = true;
   showScreen('start');
 }
 
 function returnDone() {
   currentTrack = null;
-  showScreen('start');
+  showLog();
 }
 
 // ============================================================
