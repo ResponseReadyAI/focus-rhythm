@@ -617,6 +617,7 @@ function onSessionEnd() {
   updateTimerDisplay(0, totalDuration);
   updateRing(0, totalDuration);
   saveCooldown();
+  logSession(currentTrack, totalDuration);
   clearSession();
 
   const msg = CONFIG.nudges.endMessage;
@@ -700,6 +701,7 @@ function selectTrack(trackKey) {
 
 function openFrustration() {
   if (timerState === 'running') pauseSession();
+  logFrustration();
   document.getElementById('modal-frustration').classList.remove('hidden');
 }
 
@@ -837,6 +839,101 @@ function initCooldownUI() {
 }
 
 // ============================================================
+// SESSION LOG
+// ============================================================
+
+const LOG_KEY = 'focusRhythm_log';
+
+function todayStr() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function getLog() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(LOG_KEY));
+    if (raw && raw.date === todayStr()) return raw;
+  } catch (_) {}
+  return { date: todayStr(), sessions: [], breaks: [], frustrationCount: 0 };
+}
+
+function saveLog(log) {
+  try { localStorage.setItem(LOG_KEY, JSON.stringify(log)); } catch (_) {}
+}
+
+function logSession(track, duration) {
+  const log = getLog();
+  log.sessions.push({ track, duration, timestamp: Date.now() });
+  saveLog(log);
+}
+
+function logBreak(type, duration) {
+  if (!type) return;
+  const log = getLog();
+  log.breaks.push({ type, duration: Math.round(duration), timestamp: Date.now() });
+  saveLog(log);
+}
+
+function logFrustration() {
+  const log = getLog();
+  log.frustrationCount = (log.frustrationCount || 0) + 1;
+  saveLog(log);
+}
+
+function formatLogDuration(seconds) {
+  const h = Math.floor(seconds / 3600);
+  const m = Math.round((seconds % 3600) / 60);
+  if (h > 0 && m > 0) return `${h}h ${m}m`;
+  if (h > 0) return `${h}h`;
+  return `${m}m`;
+}
+
+function renderSessionLog() {
+  const log = getLog();
+  const el  = document.getElementById('log-summary');
+  if (!el) return;
+
+  if (!log.sessions.length && !log.breaks.length && !log.frustrationCount) {
+    el.innerHTML = '<p class="log-empty">Nothing logged yet today.<br>Start a session to see your summary here.</p>';
+    return;
+  }
+
+  const deepSessions   = log.sessions.filter(s => s.track === 'deep');
+  const lightSessions  = log.sessions.filter(s => s.track === 'light');
+  const gamingSessions = log.sessions.filter(s => s.track === 'gaming');
+
+  const totalWorkSec = [...deepSessions, ...lightSessions]
+    .reduce((sum, s) => sum + s.duration, 0);
+  const totalHours = totalWorkSec / 3600;
+
+  const rows = [];
+  if (deepSessions.length)   rows.push(`${deepSessions.length} Deep Work session${deepSessions.length > 1 ? 's' : ''} &nbsp;<span class="log-dur">(${formatLogDuration(deepSessions.reduce((s, x) => s + x.duration, 0))})</span>`);
+  if (lightSessions.length)  rows.push(`${lightSessions.length} Light Track session${lightSessions.length > 1 ? 's' : ''} &nbsp;<span class="log-dur">(${formatLogDuration(lightSessions.reduce((s, x) => s + x.duration, 0))})</span>`);
+  if (gamingSessions.length) rows.push(`${gamingSessions.length} Gaming session${gamingSessions.length > 1 ? 's' : ''}`);
+  if (log.breaks.length)     rows.push(`${log.breaks.length} break${log.breaks.length > 1 ? 's' : ''} taken`);
+  if (log.frustrationCount)  rows.push(`Frustration protocol opened ${log.frustrationCount}&times;`);
+
+  let msg;
+  if (totalHours < 1)      msg = 'Even a little counts. You showed up.';
+  else if (totalHours < 2) msg = 'Solid. More than most people managed today.';
+  else if (totalHours < 4) msg = "That's a real day's work.";
+  else                     msg = "That's a lot. Make sure tomorrow has some breathing room.";
+
+  el.innerHTML = `
+    <div class="log-card">
+      <h2 class="log-title">Today</h2>
+      <div class="log-divider"></div>
+      <ul class="log-rows">${rows.map(r => `<li>${r}</li>`).join('')}</ul>
+      <div class="log-divider"></div>
+      <p class="log-message">${msg}</p>
+    </div>`;
+}
+
+function showLog() {
+  renderSessionLog();
+  showScreen('log');
+}
+
+// ============================================================
 // REFRESH SCREEN
 // ============================================================
 
@@ -951,6 +1048,12 @@ function stopRefreshTimer() {
 
 function finishRefresh() {
   stopRefreshTimer();
+  if (refreshType) {
+    const elapsed = refreshStartTime
+      ? Math.min(refreshDuration || 0, (Date.now() - refreshStartTime) / 1000)
+      : 0;
+    logBreak(refreshType, elapsed);
+  }
   showScreen('return');
 }
 

@@ -1298,6 +1298,81 @@ body[data-track="light"] .btn-sheet-switch {
   border-color: var(--light-border);
 }
 
+/* ---- Today / log button on start screen ---- */
+.btn-today {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  padding: 6px 0;
+  cursor: pointer;
+  align-self: center;
+  margin-top: 4px;
+  transition: color 0.15s;
+}
+.btn-today:hover { color: var(--text-secondary); }
+
+/* ---- Session Log screen ---- */
+.log-content {
+  gap: 20px;
+  padding-top: 16px;
+}
+
+.log-card {
+  background: var(--white);
+  border: 1px solid #e2e8f0;
+  border-radius: var(--radius);
+  padding: 24px 28px;
+  box-shadow: var(--shadow-sm);
+}
+
+.log-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 12px;
+}
+
+.log-divider {
+  border: none;
+  border-top: 1px solid #e2e8f0;
+  margin: 12px 0;
+}
+
+.log-rows {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.log-rows li {
+  font-size: 0.95rem;
+  color: var(--text-primary);
+}
+
+.log-dur {
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+}
+
+.log-message {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  font-style: italic;
+  margin: 0;
+}
+
+.log-empty {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  padding: 32px 0;
+}
+
 /* ---- Ambient sound bar ---- */
 .ambient-bar {
   display: flex;
