@@ -1,0 +1,1340 @@
+/* ============================================================
+   Focus Rhythm — Styles
+   Design reference: daniels-work-rhythm.html
+   ============================================================ */
+
+/* ---- Variables ---- */
+:root {
+  --bg: #f0f4f8;
+  --white: #ffffff;
+
+  /* Deep Work — blue */
+  --deep-bg: #ebf4ff;
+  --deep-border: #4299e1;
+  --deep-text: #2b6cb0;
+  --deep-soft: #bee3f8;
+
+  /* Light Track — green */
+  --light-bg: #f0fff4;
+  --light-border: #68d391;
+  --light-text: #276749;
+  --light-soft: #c6f6d5;
+
+  /* Timer / Break — yellow */
+  --timer-bg: #fffff0;
+  --timer-border: #ecc94b;
+  --timer-text: #744210;
+
+  /* Frustration — red */
+  --frustration-bg: #fff5f5;
+  --frustration-border: #fc8181;
+  --frustration-text: #c53030;
+  --frustration-soft: #fed7d7;
+
+  /* Gaming — purple */
+  --gaming-bg: #faf5ff;
+  --gaming-border: #b794f4;
+  --gaming-text: #553c9a;
+  --gaming-soft: #d6bcfa;
+
+  /* Body text */
+  --text-primary: #2d3748;
+  --text-secondary: #718096;
+  --text-muted: #a0aec0;
+  --text-dark: #1a202c;
+
+  /* Structure */
+  --radius: 14px;
+  --radius-sm: 10px;
+  --radius-pill: 50px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.06);
+  --shadow-lg: 0 10px 30px rgba(0,0,0,0.14), 0 4px 8px rgba(0,0,0,0.06);
+
+  /* Font */
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+}
+
+/* ---- Reset ---- */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ---- Base ---- */
+html, body {
+  height: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text-primary);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible {
+  outline: 3px solid var(--deep-border);
+  outline-offset: 2px;
+}
+
+/* ============================================================
+   APP SHELL & SCREENS
+   ============================================================ */
+
+#app {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+.screen {
+  display: none;
+  min-height: 100dvh;
+  width: 100%;
+}
+
+.screen.active {
+  display: flex;
+  flex-direction: column;
+}
+
+.screen-content {
+  flex: 1;
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 32px 20px 40px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ============================================================
+   SCREEN 1 — SESSION START
+   ============================================================ */
+
+.start-content {
+  justify-content: center;
+  gap: 32px;
+}
+
+.app-brand {
+  text-align: center;
+}
+
+.app-brand h1 {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--text-dark);
+  letter-spacing: -0.02em;
+}
+
+.brand-sub {
+  margin-top: 6px;
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+}
+
+.energy-check {
+  text-align: center;
+}
+
+.energy-question {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 6px;
+}
+
+.energy-hint {
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+  font-style: italic;
+}
+
+/* Track selection cards */
+.track-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.track-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 20px;
+  border-radius: var(--radius);
+  border: 2px solid;
+  text-align: left;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  min-height: 80px;
+}
+
+.track-card:active {
+  transform: scale(0.98);
+  box-shadow: none;
+}
+
+.track-card-emoji {
+  font-size: 2rem;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.track-card-text h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.track-card-text p {
+  font-size: 0.82rem;
+  opacity: 0.8;
+}
+
+.track-card.deep-card {
+  background: var(--deep-bg);
+  border-color: var(--deep-border);
+  color: var(--deep-text);
+}
+
+.track-card.light-card {
+  background: var(--light-bg);
+  border-color: var(--light-border);
+  color: var(--light-text);
+}
+
+.track-card.gaming-card {
+  background: var(--gaming-bg);
+  border-color: var(--gaming-border);
+  color: var(--gaming-text);
+}
+
+/* ============================================================
+   SCREEN 2 — ACTIVE SESSION
+   ============================================================ */
+
+.active-content {
+  gap: 20px;
+  padding-top: 24px;
+  padding-bottom: 32px;
+}
+
+/* Track header */
+.track-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  border-radius: var(--radius);
+  border: 2px solid;
+  box-shadow: var(--shadow-sm);
+}
+
+.track-emoji-lg {
+  font-size: 2rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.track-header h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.track-duration-label {
+  font-size: 0.78rem;
+  opacity: 0.75;
+  margin-top: 1px;
+}
+
+/* Track-colored header states (set via data-track attribute on #app) */
+#app[data-track="deep"] .track-header {
+  background: var(--deep-bg);
+  border-color: var(--deep-border);
+  color: var(--deep-text);
+}
+#app[data-track="light"] .track-header {
+  background: var(--light-bg);
+  border-color: var(--light-border);
+  color: var(--light-text);
+}
+#app[data-track="gaming"] .track-header {
+  background: var(--gaming-bg);
+  border-color: var(--gaming-border);
+  color: var(--gaming-text);
+}
+
+/* Task list */
+.task-list {
+  background: var(--white);
+  border: 1px solid #e2e8f0;
+  border-radius: var(--radius);
+  padding: 4px 0;
+  box-shadow: var(--shadow-sm);
+}
+
+/* ---- Task items (static gaming style) ---- */
+.task-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 9px 14px;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+  border-bottom: 1px solid #f7fafc;
+  list-style: none;
+}
+
+.task-item:last-child {
+  border-bottom: none;
+}
+
+.task-item-emoji {
+  flex-shrink: 0;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+/* ---- Interactive task items (deep / light) ---- */
+.task-item-interactive {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  padding: 9px 10px 9px 12px;
+  border-bottom: 1px solid #f7fafc;
+  transition: background 0.15s ease;
+}
+
+.task-item-interactive:last-of-type {
+  border-bottom: none;
+}
+
+/* Checkbox */
+.task-checkbox {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  margin-top: 3px;
+  cursor: pointer;
+  border-radius: 4px;
+  accent-color: var(--deep-border);
+}
+
+#app[data-track="light"] .task-checkbox { accent-color: var(--light-border); }
+#app[data-track="gaming"] .task-checkbox { accent-color: var(--gaming-border); }
+
+/* Emoji (editable) */
+.task-emoji-ce {
+  flex-shrink: 0;
+  font-size: 1rem;
+  line-height: 1.6;
+  min-width: 22px;
+  text-align: center;
+  cursor: text;
+  outline: none;
+  border-radius: 4px;
+  padding: 1px 2px;
+  /* Prevent multi-line */
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+/* Task text (editable) */
+.task-text-ce {
+  flex: 1;
+  font-size: 0.875rem;
+  line-height: 1.55;
+  cursor: text;
+  outline: none;
+  border-radius: 4px;
+  padding: 1px 3px;
+  min-width: 0;
+  word-break: break-word;
+  color: var(--text-primary);
+  transition: color 0.2s ease;
+}
+
+/* Focus ring for editable fields */
+.task-emoji-ce:focus,
+.task-text-ce:focus,
+.task-duration-badge:focus {
+  background: #f0f4f8;
+  outline: 2px solid var(--deep-border);
+  outline-offset: 0;
+}
+
+#app[data-track="light"] .task-emoji-ce:focus,
+#app[data-track="light"] .task-text-ce:focus,
+#app[data-track="light"] .task-duration-badge:focus {
+  outline-color: var(--light-border);
+}
+
+/* Duration badge (editable) */
+.task-duration-badge {
+  flex-shrink: 0;
+  background: #fefcbf;
+  border: 1px solid #f6e05e;
+  border-radius: 20px;
+  padding: 2px 9px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #744210;
+  cursor: text;
+  outline: none;
+  white-space: nowrap;
+  min-width: 38px;
+  text-align: center;
+  line-height: 1.8;
+  align-self: flex-start;
+  margin-top: 2px;
+}
+
+/* Delete button */
+.task-delete-btn {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-top: 2px;
+  transition: color 0.15s ease, background 0.15s ease;
+  line-height: 1;
+}
+
+.task-delete-btn:hover {
+  color: var(--frustration-text);
+  background: var(--frustration-bg);
+}
+
+/* Checked state */
+.task-item-checked .task-text-ce {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+
+.task-item-checked .task-duration-badge {
+  opacity: 0.5;
+}
+
+/* Add task button */
+.task-add-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 9px 14px;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  border-top: 1px dashed #e2e8f0;
+  cursor: pointer;
+  text-align: left;
+  transition: color 0.15s ease, background 0.15s ease;
+  border-radius: 0 0 var(--radius) var(--radius);
+}
+
+.task-add-btn:hover {
+  color: var(--text-secondary);
+  background: #f7fafc;
+}
+
+/* Track task list accent borders */
+#app[data-track="deep"] .task-list {
+  border-color: var(--deep-soft);
+}
+#app[data-track="deep"] .task-item,
+#app[data-track="deep"] .task-item-interactive {
+  border-bottom-color: #ebf4ff;
+}
+#app[data-track="light"] .task-list {
+  border-color: var(--light-soft);
+}
+#app[data-track="light"] .task-item,
+#app[data-track="light"] .task-item-interactive {
+  border-bottom-color: #f0fff4;
+}
+#app[data-track="gaming"] .task-list {
+  border-color: var(--gaming-soft);
+}
+#app[data-track="gaming"] .task-item {
+  border-bottom-color: var(--gaming-bg);
+}
+
+/* Timer section */
+.timer-section {
+  display: flex;
+  justify-content: center;
+}
+
+.timer-ring-container {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  flex-shrink: 0;
+}
+
+.progress-ring {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.progress-ring-bg {
+  fill: none;
+  stroke: #e2e8f0;
+  stroke-width: 8;
+}
+
+.progress-ring-fill {
+  fill: none;
+  stroke: var(--deep-border);
+  stroke-width: 8;
+  stroke-linecap: round;
+  stroke-dasharray: 552.92;
+  stroke-dashoffset: 0;
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+  transition: stroke-dashoffset 0.6s ease, stroke 0.3s ease;
+}
+
+/* Track colors for the ring */
+#app[data-track="deep"] .progress-ring-fill {
+  stroke: var(--deep-border);
+}
+#app[data-track="light"] .progress-ring-fill {
+  stroke: var(--light-border);
+}
+#app[data-track="gaming"] .progress-ring-fill {
+  stroke: var(--gaming-border);
+}
+
+/* Paused state dims the ring */
+#app.is-paused .progress-ring-fill {
+  opacity: 0.4;
+}
+
+.timer-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  width: 80%;
+}
+
+.timer-display {
+  font-size: 2.8rem;
+  font-weight: 800;
+  color: var(--text-dark);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  transition: opacity 0.3s ease;
+}
+
+#app.is-paused .timer-display {
+  opacity: 0.5;
+}
+
+.paused-badge {
+  display: inline-block;
+  margin-top: 6px;
+  background: var(--timer-border);
+  color: var(--timer-text);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+}
+
+.paused-hint {
+  margin-top: 4px;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+/* Controls */
+.controls {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: var(--radius-pill);
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 12px 24px;
+  min-height: 48px;
+  transition: transform 0.1s ease, box-shadow 0.1s ease, opacity 0.1s ease;
+  box-shadow: var(--shadow-sm);
+  white-space: nowrap;
+}
+
+.btn:active {
+  transform: scale(0.96);
+  box-shadow: none;
+}
+
+.btn-primary {
+  background: var(--text-dark);
+  color: var(--white);
+  flex: 1;
+  max-width: 200px;
+}
+
+.btn-secondary {
+  background: var(--white);
+  color: var(--text-primary);
+  border: 2px solid #e2e8f0;
+}
+
+.btn-danger {
+  background: var(--frustration-border);
+  color: var(--white);
+}
+
+.btn-frustration-trigger {
+  background: var(--frustration-bg);
+  border: 2px solid var(--frustration-border);
+  color: var(--frustration-text);
+  font-size: 1.3rem;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  padding: 0;
+  min-height: 52px;
+  flex-shrink: 0;
+}
+
+.btn-take-break {
+  background: var(--frustration-border);
+  color: var(--white);
+  border: none;
+}
+
+.btn-back-in {
+  background: var(--text-dark);
+  color: var(--white);
+  align-self: center;
+  padding: 14px 32px;
+}
+
+/* ============================================================
+   SCREEN 3 — REFRESH
+   ============================================================ */
+
+.refresh-content {
+  gap: 20px;
+  align-items: stretch;
+}
+
+.refresh-header {
+  display: flex;
+  justify-content: center;
+}
+
+.refresh-end-note {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--timer-bg);
+  border: 2px solid var(--timer-border);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  width: 100%;
+}
+
+.refresh-end-emoji {
+  font-size: 2rem;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.refresh-end-note h2 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--timer-text);
+  margin-bottom: 2px;
+}
+
+.refresh-end-note p {
+  font-size: 0.82rem;
+  color: #975a16;
+  line-height: 1.4;
+}
+
+.section-label {
+  text-align: center;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+}
+
+/* Refresh cards grid */
+.refresh-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.refresh-card {
+  background: var(--white);
+  border: 2px solid #e2e8f0;
+  border-radius: var(--radius);
+  padding: 18px 12px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  min-height: 120px;
+}
+
+.refresh-card:active {
+  transform: scale(0.97);
+  box-shadow: none;
+}
+
+.refresh-card.selected {
+  border-color: var(--deep-border);
+  background: var(--deep-bg);
+}
+
+.refresh-card-gaming {
+  background: var(--gaming-bg);
+  border-color: var(--gaming-border);
+}
+
+.refresh-card-gaming h3 {
+  color: var(--gaming-text);
+}
+
+.r-emoji {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.refresh-card h3 {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.refresh-card p {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+/* Active refresh timer */
+.refresh-active-timer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  background: var(--white);
+  border: 1px solid #e2e8f0;
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+}
+
+.refresh-timer-ring-container {
+  position: relative;
+  width: 120px;
+  height: 120px;
+}
+
+.progress-ring-sm {
+  width: 100%;
+  height: 100%;
+}
+
+.refresh-ring {
+  stroke: var(--gaming-border);
+  stroke-dasharray: 314.16;
+  stroke-dashoffset: 0;
+}
+
+.refresh-timer-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.refresh-timer-display {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text-dark);
+  font-variant-numeric: tabular-nums;
+}
+
+.refresh-timer-label {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.gaming-eye-note {
+  background: var(--gaming-bg);
+  border: 1px solid var(--gaming-soft);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 0.78rem;
+  color: var(--gaming-text);
+  text-align: center;
+  line-height: 1.5;
+  max-width: 340px;
+}
+
+/* ============================================================
+   SCREEN 4 — RETURN CHECK
+   ============================================================ */
+
+.return-content {
+  justify-content: center;
+  gap: 32px;
+  align-items: center;
+}
+
+.check-node {
+  background: #ebf8ff;
+  border: 2px solid #90cdf4;
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  text-align: center;
+  width: 100%;
+}
+
+.check-node h2 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #2c5282;
+  margin-bottom: 6px;
+}
+
+.check-node p {
+  font-size: 0.85rem;
+  color: #4a5568;
+}
+
+.return-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.btn-return {
+  width: 100%;
+  padding: 16px 24px;
+  border-radius: var(--radius);
+  font-size: 0.95rem;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+  min-height: 56px;
+}
+
+.btn-return-same {
+  background: var(--deep-bg);
+  border: 2px solid var(--deep-border);
+  color: var(--deep-text);
+}
+
+.btn-return-switch {
+  background: var(--light-bg);
+  border: 2px solid var(--light-border);
+  color: var(--light-text);
+}
+
+.btn-return-done {
+  background: var(--white);
+  border: 2px solid #e2e8f0;
+  color: var(--text-secondary);
+}
+
+.loop-note {
+  background: var(--white);
+  border: 1px solid #e2e8f0;
+  border-radius: var(--radius-sm);
+  padding: 10px 20px;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+/* ============================================================
+   MODALS
+   ============================================================ */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(26, 32, 44, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 100;
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+}
+
+.modal-content {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 28px 24px;
+  width: 100%;
+  max-width: 480px;
+  max-height: 90dvh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+}
+
+/* Frustration modal */
+.frustration-modal {
+  border-top: 4px solid var(--frustration-border);
+}
+
+.frustration-modal h2 {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--frustration-text);
+  margin-bottom: 16px;
+}
+
+.frustration-steps {
+  list-style: none;
+  counter-reset: steps;
+  margin-bottom: 16px;
+}
+
+.frustration-steps li {
+  counter-increment: steps;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--frustration-soft);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: #4a5568;
+}
+
+.frustration-steps li:last-child {
+  border-bottom: none;
+}
+
+.frustration-steps li::before {
+  content: counter(steps);
+  background: var(--frustration-border);
+  color: white;
+  border-radius: 50%;
+  min-width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 800;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.frustration-steps li strong {
+  color: var(--text-primary);
+}
+
+.reframe-box {
+  background: #fff;
+  border-left: 4px solid var(--frustration-border);
+  padding: 10px 14px;
+  border-radius: 0 8px 8px 0;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.reframe-box strong {
+  color: var(--frustration-text);
+}
+
+/* Reset modal */
+.reset-modal h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 8px;
+}
+
+.reset-modal p {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+}
+
+.modal-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+/* ============================================================
+   UTILITY
+   ============================================================ */
+
+.hidden {
+  display: none !important;
+}
+
+/* ============================================================
+   RESPONSIVE — TABLET & DESKTOP
+   ============================================================ */
+
+@media (min-width: 480px) {
+  .timer-ring-container {
+    width: 240px;
+    height: 240px;
+  }
+
+  .timer-display {
+    font-size: 3.2rem;
+  }
+
+  .refresh-cards {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (min-width: 640px) {
+  .screen-content {
+    padding-top: 48px;
+    padding-bottom: 48px;
+  }
+
+  .track-cards {
+    gap: 16px;
+  }
+
+  .track-card {
+    padding: 22px 24px;
+  }
+
+  .active-content {
+    gap: 24px;
+  }
+}
+
+/* ============================================================
+   ANIMATIONS
+   ============================================================ */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.screen.active .screen-content {
+  animation: fadeInUp 0.25s ease both;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+#app.is-paused .paused-badge {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* Safe area insets for notched phones */
+@supports (padding: max(0px)) {
+  .screen-content {
+    padding-left: max(20px, env(safe-area-inset-left));
+    padding-right: max(20px, env(safe-area-inset-right));
+    padding-bottom: max(40px, env(safe-area-inset-bottom));
+  }
+}
+
+/* ============================================================
+   SWITCH OR STAY BOTTOM SHEET
+   ============================================================ */
+
+.switch-stay-sheet {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--white);
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.14), 0 -1px 4px rgba(0, 0, 0, 0.06);
+  z-index: 60;
+  transform: translateY(110%);
+  transition: transform 0.32s cubic-bezier(0.34, 1.2, 0.64, 1);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  overflow: hidden;
+}
+
+.switch-stay-sheet.visible {
+  transform: translateY(0);
+}
+
+/* Progress drain bar */
+.sheet-progress-bar {
+  height: 3px;
+  background: #e2e8f0;
+  width: 100%;
+}
+
+.sheet-progress-fill {
+  height: 100%;
+  width: 100%;
+  background: var(--deep-border);
+  transform-origin: left;
+}
+
+body[data-track="light"]  .sheet-progress-fill { background: var(--light-border); }
+body[data-track="gaming"] .sheet-progress-fill { background: var(--gaming-border); }
+
+/* Animation class that restarts on each show */
+.sheet-progress-fill.draining {
+  animation: drainBar 7s linear forwards;
+}
+
+@keyframes drainBar {
+  from { transform: scaleX(1); }
+  to   { transform: scaleX(0); }
+}
+
+.sheet-inner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px 16px 12px;
+}
+
+.sheet-check {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  background: #c6f6d5;
+  color: var(--light-text);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: 700;
+  margin-top: 1px;
+}
+
+.sheet-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.sheet-task-name {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 2px;
+}
+
+.sheet-question {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.sheet-dismiss-btn {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #f0f4f8;
+  border: none;
+  font-size: 1rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.sheet-actions {
+  display: flex;
+  gap: 8px;
+  padding: 0 16px 16px;
+}
+
+.btn-sheet-stay {
+  flex: 1;
+  background: #f0f4f8;
+  color: var(--text-primary);
+  border: none;
+  padding: 12px;
+  border-radius: var(--radius);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  min-height: 44px;
+}
+
+.btn-sheet-switch {
+  flex: 1;
+  background: var(--deep-bg);
+  color: var(--deep-text);
+  border: 2px solid var(--deep-border);
+  padding: 12px;
+  border-radius: var(--radius);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  min-height: 44px;
+}
+
+body[data-track="light"] .btn-sheet-switch {
+  background: var(--light-bg);
+  color: var(--light-text);
+  border-color: var(--light-border);
+}
+
+/* ---- Back to menu button ---- */
+.btn-back-to-menu {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  padding: 0.25rem 0;
+  cursor: pointer;
+  align-self: flex-start;
+  margin-bottom: 0.5rem;
+  opacity: 0.75;
+  transition: opacity 0.15s;
+}
+.btn-back-to-menu:hover { opacity: 1; }
+
+/* ---- Add-time buttons ---- */
+.btn-add-time {
+  background: transparent;
+  border: 1px solid var(--text-muted);
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: background 0.15s, opacity 0.15s;
+}
+.btn-add-time:hover:not(:disabled) { background: #f0f4f8; }
+.btn-add-time:disabled { opacity: 0.3; cursor: not-allowed; }
+
+.add-time-msg {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  display: block;
+  text-align: center;
+  min-height: 1em;
+  margin-top: 0.25rem;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.add-time-msg.visible { opacity: 1; }
+
+/* ---- Cooldown notice ---- */
+.cooldown-notice {
+  background: #fffff0;
+  border: 1px solid #ecc94b;
+  border-radius: var(--radius);
+  color: #744210;
+  font-size: 0.875rem;
+  padding: 0.75rem 1rem;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+/* ---- Cooldown-disabled track cards ---- */
+.track-card.cooldown-active {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+/* ---- Back modal ---- */
+.back-modal h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 8px;
+}
+
+.back-modal p {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+}
+
+/* ---- Add time modal ---- */
+.add-time-modal h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 8px;
+}
+
+.add-time-modal p {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+}

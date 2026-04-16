@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Focus Rhythm</title>
+  <meta name="theme-color" content="#1a202c">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Focus">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app">
+
+    <!-- ======================== SCREEN 1: SESSION START ======================== -->
+    <div id="screen-start" class="screen active">
+      <div class="screen-content start-content">
+        <div class="app-brand">
+          <h1>Focus Rhythm</h1>
+          <p class="brand-sub">Not a schedule. A rhythm you can pick up and put down.</p>
+        </div>
+
+        <div class="energy-check">
+          <h2 class="energy-question">How's your energy right now?</h2>
+          <p class="energy-hint">Be honest — it determines which track is actually useful.</p>
+        </div>
+
+        <div id="cooldown-notice" class="cooldown-notice hidden"></div>
+
+        <div class="track-cards">
+          <button class="track-card deep-card" onclick="selectTrack('deep')" aria-label="High or Medium Energy — Deep Work 90 minutes">
+            <span class="track-card-emoji">⚡</span>
+            <div class="track-card-text">
+              <h3>High / Medium Energy</h3>
+              <p>Deep Work &mdash; 90 min</p>
+            </div>
+          </button>
+
+          <button class="track-card light-card" onclick="selectTrack('light')" aria-label="Low Energy or Scattered — Light Track 60 minutes">
+            <span class="track-card-emoji">🌫</span>
+            <div class="track-card-text">
+              <h3>Low Energy / Scattered</h3>
+              <p>Light Track &mdash; 60 min</p>
+            </div>
+          </button>
+
+          <button class="track-card gaming-card" onclick="selectTrack('gaming')" aria-label="Gaming Mode — Eye Break Timer 20 minutes">
+            <span class="track-card-emoji">🎮</span>
+            <div class="track-card-text">
+              <h3>Gaming Mode</h3>
+              <p>Eye Break Timer &mdash; 20 min</p>
+            </div>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======================== SCREEN 2: ACTIVE SESSION ======================== -->
+    <div id="screen-active" class="screen">
+      <div class="screen-content active-content">
+
+        <!-- Back to menu button -->
+        <button class="btn-back-to-menu" onclick="handleBack()" aria-label="Back to menu">&#8592; Back</button>
+
+        <!-- Track header -->
+        <div id="track-header" class="track-header">
+          <span id="track-emoji-display" class="track-emoji-lg" aria-hidden="true"></span>
+          <div>
+            <h2 id="track-name-display"></h2>
+            <p id="track-duration-label" class="track-duration-label"></p>
+          </div>
+        </div>
+
+        <!-- Task list -->
+        <div id="task-list" class="task-list" role="list" aria-label="Session tasks"></div>
+
+        <!-- Timer ring -->
+        <div class="timer-section">
+          <div class="timer-ring-container" role="timer" aria-live="polite" aria-label="Time remaining">
+            <svg class="progress-ring" viewBox="0 0 200 200" aria-hidden="true">
+              <circle class="progress-ring-bg" cx="100" cy="100" r="88"/>
+              <circle id="progress-ring-fill" class="progress-ring-fill" cx="100" cy="100" r="88"/>
+            </svg>
+            <div class="timer-center">
+              <div id="timer-display" class="timer-display">--:--</div>
+              <div id="paused-badge" class="paused-badge hidden" aria-label="Timer paused">Paused</div>
+              <div id="paused-hint" class="paused-hint hidden">Take your time.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls" role="group" aria-label="Timer controls">
+          <button id="btn-start-pause" class="btn btn-primary" onclick="handleStartPause()">&#9654; Start</button>
+          <button id="btn-reset" class="btn btn-secondary" onclick="handleReset()">&#8635; Reset</button>
+          <button id="btn-frustration" class="btn btn-frustration-trigger" onclick="openFrustration()" aria-label="Open frustration protocol">&#128293;</button>
+          <button id="btn-add-15" class="btn btn-add-time" onclick="handleAddTime(900)" disabled>+15 min</button>
+          <button id="btn-add-30" class="btn btn-add-time" onclick="handleAddTime(1800)" disabled>+30 min</button>
+          <span id="add-time-msg" class="add-time-msg"></span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ======================== SCREEN 3: REFRESH ======================== -->
+    <div id="screen-refresh" class="screen">
+      <div class="screen-content refresh-content">
+        <div class="refresh-header">
+          <div class="refresh-end-note" id="refresh-end-note">
+            <span class="refresh-end-emoji">&#9203;</span>
+            <div>
+              <h2>Break for now</h2>
+              <p>Your brain has been working hard. This will still be here.</p>
+            </div>
+          </div>
+        </div>
+
+        <p class="section-label">Choose a refresh</p>
+
+        <!-- Refresh timer display (hidden until a timed refresh is active) -->
+        <div id="refresh-active-timer" class="refresh-active-timer hidden">
+          <div class="refresh-timer-ring-container">
+            <svg class="progress-ring progress-ring-sm" viewBox="0 0 120 120" aria-hidden="true">
+              <circle class="progress-ring-bg" cx="60" cy="60" r="50"/>
+              <circle id="refresh-ring-fill" class="progress-ring-fill refresh-ring" cx="60" cy="60" r="50"/>
+            </svg>
+            <div class="refresh-timer-center">
+              <div id="refresh-timer-display" class="refresh-timer-display">--:--</div>
+            </div>
+          </div>
+          <p id="refresh-timer-label" class="refresh-timer-label"></p>
+          <div id="gaming-eye-note" class="gaming-eye-note hidden">
+            &#127918; <strong>20-20-20:</strong> Every 20 min, look 20 ft away for 20 sec.
+          </div>
+        </div>
+
+        <!-- Refresh cards -->
+        <div id="refresh-cards" class="refresh-cards">
+          <button class="refresh-card" onclick="selectRefresh('walk', this)" aria-label="Quick Walk, 10 to 15 minutes">
+            <span class="r-emoji">&#128694;</span>
+            <h3>Quick Walk</h3>
+            <p>10&ndash;15 min<br>No phone if possible</p>
+          </button>
+          <button class="refresh-card" onclick="selectRefresh('eat', this)" aria-label="Eat, step away from screen">
+            <span class="r-emoji">&#127869;&#65039;</span>
+            <h3>Eat</h3>
+            <p>Step away from<br>the screen</p>
+          </button>
+          <button class="refresh-card" onclick="selectRefresh('french', this)" aria-label="French lesson, 15 to 20 minutes">
+            <span class="r-emoji">&#127467;&#127479;</span>
+            <h3>French</h3>
+            <p>15&ndash;20 min<br>Different part of your brain</p>
+          </button>
+          <button class="refresh-card refresh-card-gaming" onclick="selectRefresh('gaming', this)" aria-label="Gaming, 20 minutes with eye break timer">
+            <span class="r-emoji">&#127918;</span>
+            <h3>Gaming</h3>
+            <p>20 min<br>Eye break timer</p>
+          </button>
+        </div>
+
+        <button class="btn btn-back-in" onclick="finishRefresh()">I'm back &#8594;</button>
+      </div>
+    </div>
+
+    <!-- ======================== SCREEN 4: RETURN CHECK ======================== -->
+    <div id="screen-return" class="screen">
+      <div class="screen-content return-content">
+        <div class="check-node">
+          <h2>How are you feeling?</h2>
+          <p>Take a breath. No rush on this answer.</p>
+        </div>
+        <div class="return-buttons">
+          <button class="btn btn-return btn-return-same" onclick="returnSameTrack()">
+            Continue same track
+          </button>
+          <button class="btn btn-return btn-return-switch" onclick="returnSwitchTrack()">
+            Switch tracks
+          </button>
+          <button class="btn btn-return btn-return-done" onclick="returnDone()">
+            Done for now &mdash; and that's okay
+          </button>
+        </div>
+        <div class="loop-note">
+          &#128257;&nbsp; Loop back &nbsp;&middot;&nbsp; Pick up where you left off &nbsp;&middot;&nbsp; Nothing is lost when you pause
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /#app -->
+
+  <!-- ======================== MODAL: FRUSTRATION PROTOCOL ======================== -->
+  <div id="modal-frustration" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="frustration-title" onclick="closeFrustrationOnBackdrop(event)">
+    <div class="modal-content frustration-modal" onclick="event.stopPropagation()">
+      <h2 id="frustration-title">&#128293; When the wall hits</h2>
+      <ol class="frustration-steps">
+        <li>
+          <div><strong>Name it out loud:</strong> "There's the wall. This is normal. This is where the real learning is."</div>
+        </li>
+        <li>
+          <div><strong>Step away before the spiral, not after.</strong> The moment you feel it firing — take the break early.</div>
+        </li>
+        <li>
+          <div><strong>Don't make decisions while frustrated.</strong> "I can't do this" is a state, not a fact. States pass.</div>
+        </li>
+        <li>
+          <div><strong>Return with a smaller question.</strong> Not "fix this whole thing." Just: what's one next thing I can try?</div>
+        </li>
+      </ol>
+      <div class="reframe-box">
+        <strong>The reframe:</strong> "This is getting harder" doesn't mean "I'm not good enough." It means you've gotten good enough to be working on hard things.
+      </div>
+      <div class="modal-buttons">
+        <button class="btn btn-secondary" onclick="closeFrustration()">Close</button>
+        <button class="btn btn-take-break" onclick="takeBreakNow()">Take break now</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================== MODAL: RESET CONFIRM ======================== -->
+  <div id="modal-reset" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="reset-title" onclick="closeResetOnBackdrop(event)">
+    <div class="modal-content reset-modal" onclick="event.stopPropagation()">
+      <h2 id="reset-title">Reset timer?</h2>
+      <p>This will reset the countdown to the beginning.</p>
+      <div class="modal-buttons">
+        <button class="btn btn-secondary" onclick="closeReset()">Cancel</button>
+        <button class="btn btn-danger" onclick="confirmReset()">Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================== MODAL: BACK CONFIRM ======================== -->
+  <div id="modal-back" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="back-title" onclick="closeBackOnBackdrop(event)">
+    <div class="modal-content back-modal" onclick="event.stopPropagation()">
+      <h2 id="back-title">Back to menu?</h2>
+      <p>Your session progress will be lost.</p>
+      <div class="modal-buttons">
+        <button class="btn btn-secondary" onclick="closeBack()">Cancel</button>
+        <button class="btn btn-danger" onclick="confirmBack()">Go back</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================== MODAL: ADD TIME CONFIRM ======================== -->
+  <div id="modal-add-time" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="add-time-title" onclick="closeAddTimeOnBackdrop(event)">
+    <div class="modal-content add-time-modal" onclick="event.stopPropagation()">
+      <h2 id="add-time-title">Add time?</h2>
+      <p id="add-time-body"></p>
+      <div class="modal-buttons">
+        <button class="btn btn-secondary" onclick="closeAddTime()">Cancel</button>
+        <button id="btn-confirm-add-time" class="btn btn-primary" onclick="confirmAddTime()">Add time</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================== BOTTOM SHEET: SWITCH OR STAY ======================== -->
+  <div id="sheet-switch-stay" class="switch-stay-sheet" role="dialog" aria-modal="false" aria-label="Task complete — switch or stay?">
+    <div class="sheet-progress-bar"><div class="sheet-progress-fill" id="sheet-progress-fill"></div></div>
+    <div class="sheet-inner">
+      <div class="sheet-check">&#10003;</div>
+      <div class="sheet-body">
+        <p class="sheet-task-name" id="sheet-task-name"></p>
+        <p class="sheet-question">Switch modes or keep going?</p>
+      </div>
+      <button class="sheet-dismiss-btn" onclick="dismissSwitchStay()" aria-label="Dismiss">&#215;</button>
+    </div>
+    <div class="sheet-actions">
+      <button class="btn btn-sheet-stay" onclick="keepGoingFromPrompt()">Keep going</button>
+      <button class="btn btn-sheet-switch" onclick="switchModesFromPrompt()">Switch modes</button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
