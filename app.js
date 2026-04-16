@@ -102,6 +102,16 @@ let pendingAddTime = 0;
 let autoTransitionTimeout  = null;
 let autoStartNextSession   = false;
 
+// ---- DURATION PICKER STATE ----
+let pendingTrack    = null;
+let pendingDuration = null; // seconds
+
+const DURATION_PRESETS = {
+  deep:   [60, 90, 120],  // default index 1
+  light:  [30, 60, 90],   // default index 1
+  gaming: [10, 20, 30],   // default index 1
+};
+
 // ---- AMBIENT SOUND STATE ----
 let ambientCtx   = null;
 let ambientNodes = [];   // all nodes created for current sound (for cleanup)
@@ -483,7 +493,8 @@ function scheduleNudges() {
       nudgeTimeout2 = setTimeout(() => fireNudge('gaming5'), (remaining - CONFIG.nudges.gamingWarning) * 1000);
     }
   } else {
-    if (remaining > CONFIG.nudges.firstWarning && !nudgesFired.has('first')) {
+    const skipFirst = totalDuration < 30 * 60;
+    if (!skipFirst && remaining > CONFIG.nudges.firstWarning && !nudgesFired.has('first')) {
       nudgeTimeout1 = setTimeout(() => fireNudge('first'), (remaining - CONFIG.nudges.firstWarning) * 1000);
     }
     if (remaining > CONFIG.nudges.secondWarning && !nudgesFired.has('second')) {
@@ -677,6 +688,85 @@ function showPausedUI(paused) {
 }
 
 // ============================================================
+// DURATION PICKER
+// ============================================================
+
+function preStartTrack(trackKey) {
+  if (trackKey !== 'gaming') {
+    const cd = getCooldown();
+    if (cd) { initCooldownUI(); return; }
+  }
+  pendingTrack = trackKey;
+  // Set track on body now so pill colors apply (modal is outside #app)
+  document.body.dataset.track = trackKey;
+  openDurationPicker(trackKey);
+}
+
+function openDurationPicker(trackKey) {
+  const track    = TRACKS[trackKey];
+  const presets  = DURATION_PRESETS[trackKey];
+  const defaultI = 1; // middle preset
+  pendingDuration = presets[defaultI] * 60;
+
+  document.getElementById('dur-emoji').textContent = track.emoji;
+  document.getElementById('dur-title').textContent = track.name;
+
+  const pillsEl = document.getElementById('duration-pills');
+  pillsEl.innerHTML = presets.map((m, i) =>
+    `<button class="duration-pill${i === defaultI ? ' selected' : ''}" onclick="selectDurationPill(${m}, this)">${m} min</button>`
+  ).join('');
+
+  // Reset custom input
+  document.getElementById('custom-duration-input').classList.add('hidden');
+  document.getElementById('custom-minutes').value = '';
+
+  document.getElementById('modal-duration').classList.remove('hidden');
+}
+
+function selectDurationPill(minutes, el) {
+  pendingDuration = minutes * 60;
+  document.querySelectorAll('.duration-pill').forEach(p => p.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('custom-duration-input').classList.add('hidden');
+  document.getElementById('custom-minutes').value = '';
+}
+
+function toggleCustomDuration() {
+  const inputEl = document.getElementById('custom-duration-input');
+  const hidden  = inputEl.classList.toggle('hidden');
+  if (!hidden) {
+    document.querySelectorAll('.duration-pill').forEach(p => p.classList.remove('selected'));
+    document.getElementById('custom-minutes').focus();
+  }
+}
+
+function confirmDuration() {
+  const customEl = document.getElementById('custom-duration-input');
+  if (!customEl.classList.contains('hidden')) {
+    const val = parseInt(document.getElementById('custom-minutes').value, 10);
+    if (!val || val < 10 || val > 180) {
+      document.getElementById('custom-minutes').focus();
+      return;
+    }
+    pendingDuration = val * 60;
+  }
+  const dur = pendingDuration;
+  const trk = pendingTrack;
+  closeDurationModal();
+  selectTrack(trk, dur);
+}
+
+function closeDurationModal() {
+  document.getElementById('modal-duration').classList.add('hidden');
+  pendingTrack    = null;
+  pendingDuration = null;
+}
+
+function closeDurationOnBackdrop(event) {
+  if (event.target === document.getElementById('modal-duration')) closeDurationModal();
+}
+
+// ============================================================
 // SCREEN NAVIGATION
 // ============================================================
 
@@ -687,7 +777,7 @@ function showScreen(name) {
   window.scrollTo(0, 0);
 }
 
-function selectTrack(trackKey) {
+function selectTrack(trackKey, customDuration) {
   if (trackKey !== 'gaming') {
     const cd = getCooldown();
     if (cd) { initCooldownUI(); return; }
@@ -697,7 +787,7 @@ function selectTrack(trackKey) {
   if (!track) return;
 
   currentTrack    = trackKey;
-  totalDuration   = track.duration;
+  totalDuration   = customDuration || track.duration;
   pausedRemaining = totalDuration;
   timerState      = 'idle';
   nudgesFired.clear();

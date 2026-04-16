@@ -31,7 +31,7 @@
         <div id="cooldown-notice" class="cooldown-notice hidden"></div>
 
         <div class="track-cards">
-          <button class="track-card deep-card" onclick="selectTrack('deep')" aria-label="High or Medium Energy — Deep Work 90 minutes">
+          <button class="track-card deep-card" onclick="preStartTrack('deep')" aria-label="High or Medium Energy — Deep Work 90 minutes">
             <span class="track-card-emoji">⚡</span>
             <div class="track-card-text">
               <h3>High / Medium Energy</h3>
@@ -39,7 +39,7 @@
             </div>
           </button>
 
-          <button class="track-card light-card" onclick="selectTrack('light')" aria-label="Low Energy or Scattered — Light Track 60 minutes">
+          <button class="track-card light-card" onclick="preStartTrack('light')" aria-label="Low Energy or Scattered — Light Track 60 minutes">
             <span class="track-card-emoji">🌫</span>
             <div class="track-card-text">
               <h3>Low Energy / Scattered</h3>
@@ -47,7 +47,7 @@
             </div>
           </button>
 
-          <button class="track-card gaming-card" onclick="selectTrack('gaming')" aria-label="Gaming Mode — Eye Break Timer 20 minutes">
+          <button class="track-card gaming-card" onclick="preStartTrack('gaming')" aria-label="Gaming Mode — Eye Break Timer 20 minutes">
             <span class="track-card-emoji">🎮</span>
             <div class="track-card-text">
               <h3>Gaming Mode</h3>
@@ -282,6 +282,31 @@
       <div class="modal-buttons">
         <button class="btn btn-secondary" onclick="closeAddTime()">Cancel</button>
         <button id="btn-confirm-add-time" class="btn btn-primary" onclick="confirmAddTime()">Add time</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================== MODAL: DURATION PICKER ======================== -->
+  <div id="modal-duration" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="dur-title" onclick="closeDurationOnBackdrop(event)">
+    <div class="modal-content duration-modal" onclick="event.stopPropagation()">
+      <div class="duration-track-header">
+        <span id="dur-emoji" class="duration-track-emoji" aria-hidden="true"></span>
+        <div>
+          <h2 id="dur-title"></h2>
+          <p class="duration-subtitle">How long this session?</p>
+        </div>
+      </div>
+      <div id="duration-pills" class="duration-pills"></div>
+      <div class="custom-duration-row">
+        <button class="btn-custom-toggle" onclick="toggleCustomDuration()">Custom</button>
+        <div id="custom-duration-input" class="custom-duration-input hidden">
+          <input type="number" id="custom-minutes" class="custom-minutes-field" min="10" max="180" placeholder="10–180">
+          <span class="custom-min-label">min</span>
+        </div>
+      </div>
+      <div class="modal-buttons">
+        <button class="btn btn-secondary" onclick="closeDurationModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="confirmDuration()">Start</button>
       </div>
     </div>
   </div>
