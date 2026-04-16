@@ -135,6 +135,19 @@
           <div id="gaming-eye-note" class="gaming-eye-note hidden">
             &#127918; <strong>20-20-20:</strong> Every 20 min, look 20 ft away for 20 sec.
           </div>
+          <button id="btn-refresh-pause" class="btn btn-refresh-pause" onclick="handleRefreshPause()">&#9208; Pause</button>
+        </div>
+
+        <div id="eat-message" class="eat-message hidden">
+          <p>Take your time. No rush.</p>
+        </div>
+
+        <div id="gaming-replay-prompt" class="gaming-replay-prompt hidden">
+          <p>Eye break done. Another round?</p>
+          <div class="gaming-replay-buttons">
+            <button class="btn btn-sheet-stay" onclick="handleGamingReplay(true)">Another 20 min</button>
+            <button class="btn btn-sheet-switch" onclick="handleGamingReplay(false)">I'm done</button>
+          </div>
         </div>
 
         <!-- Refresh cards -->

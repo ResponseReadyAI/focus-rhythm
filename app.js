@@ -83,11 +83,13 @@ let pendingSpeak     = [];
 let taskData = {};    // { deep: [...], light: [...] }
 
 // ---- REFRESH STATE ----
-let refreshType       = null;
-let refreshStartTime  = null;
-let refreshDuration   = 0;
-let refreshInterval   = null;
-let refreshNudgeFired = false;
+let refreshType             = null;
+let refreshStartTime        = null;
+let refreshDuration         = 0;
+let refreshInterval         = null;
+let refreshNudgeFired       = false;
+let refreshPaused           = false;
+let refreshPausedRemaining  = 0;
 
 // ---- SWITCH-OR-STAY STATE ----
 let switchStayTimeout = null;
@@ -830,10 +832,14 @@ function initCooldownUI() {
 // ============================================================
 
 const REFRESH_OPTIONS = {
-  walk:   { label: 'Quick Walk', duration: CONFIG.timers.refreshWalk,   hasTimer: true,  gaming: false },
-  eat:    { label: 'Eating',     duration: 0,                            hasTimer: false, gaming: false },
-  french: { label: 'French',     duration: CONFIG.timers.refreshFrench,  hasTimer: true,  gaming: false },
-  gaming: { label: 'Gaming',     duration: CONFIG.timers.refreshGaming,  hasTimer: true,  gaming: true  },
+  walk:   { label: 'Quick Walk', duration: CONFIG.timers.refreshWalk,   hasTimer: true,  gaming: false,
+            endMessage: "Walk's done. Hope you got some air. Ready when you are." },
+  eat:    { label: 'Eating',     duration: 0,                            hasTimer: false, gaming: false,
+            endMessage: null },
+  french: { label: 'French',     duration: CONFIG.timers.refreshFrench,  hasTimer: true,  gaming: false,
+            endMessage: "Good work. Different kind of brain, same you." },
+  gaming: { label: 'Gaming',     duration: CONFIG.timers.refreshGaming,  hasTimer: true,  gaming: true,
+            endMessage: "Time for your eye break — look at something far away for 20 seconds." },
 };
 
 function selectRefresh(type, cardEl) {
@@ -843,19 +849,28 @@ function selectRefresh(type, cardEl) {
   document.querySelectorAll('.refresh-card').forEach(c => c.classList.remove('selected'));
   if (cardEl) cardEl.classList.add('selected');
 
+  // Always hide replay prompt on new selection
+  document.getElementById('gaming-replay-prompt').classList.add('hidden');
+
   if (!option.hasTimer) {
     document.getElementById('refresh-active-timer').classList.add('hidden');
+    document.getElementById('eat-message').classList.remove('hidden');
     return;
   }
 
+  document.getElementById('eat-message').classList.add('hidden');
   stopRefreshTimer();
-  refreshDuration  = option.duration;
-  refreshStartTime = Date.now();
-  refreshNudgeFired = false;
+  refreshDuration        = option.duration;
+  refreshStartTime       = Date.now();
+  refreshNudgeFired      = false;
+  refreshPaused          = false;
+  refreshPausedRemaining = 0;
 
   document.getElementById('refresh-timer-label').textContent = option.label;
   document.getElementById('gaming-eye-note').classList.toggle('hidden', !option.gaming);
   document.getElementById('refresh-active-timer').classList.remove('hidden');
+  const pauseBtn = document.getElementById('btn-refresh-pause');
+  if (pauseBtn) pauseBtn.textContent = '⏸ Pause';
 
   updateRefreshDisplay(refreshDuration, refreshDuration);
   refreshInterval = setInterval(tickRefresh, 500);
@@ -876,7 +891,42 @@ function tickRefresh() {
 
   if (remaining <= 0) {
     stopRefreshTimer();
-    setTimeout(() => finishRefresh(), 1500);
+    const option = REFRESH_OPTIONS[refreshType];
+    if (option && option.endMessage) speak(option.endMessage);
+
+    if (refreshType === 'gaming') {
+      // Show replay prompt instead of auto-transitioning
+      document.getElementById('gaming-replay-prompt').classList.remove('hidden');
+    } else {
+      setTimeout(() => finishRefresh(), 3000);
+    }
+  }
+}
+
+function handleRefreshPause() {
+  const pauseBtn = document.getElementById('btn-refresh-pause');
+  if (!refreshPaused) {
+    // Pause
+    const elapsed = (Date.now() - refreshStartTime) / 1000;
+    refreshPausedRemaining = Math.max(0, refreshDuration - elapsed);
+    stopRefreshTimer();
+    refreshPaused = true;
+    if (pauseBtn) pauseBtn.textContent = '▶ Resume';
+  } else {
+    // Resume
+    refreshStartTime = Date.now() - (refreshDuration - refreshPausedRemaining) * 1000;
+    refreshInterval  = setInterval(tickRefresh, 500);
+    refreshPaused    = false;
+    if (pauseBtn) pauseBtn.textContent = '⏸ Pause';
+  }
+}
+
+function handleGamingReplay(wantMore) {
+  document.getElementById('gaming-replay-prompt').classList.add('hidden');
+  if (wantMore) {
+    selectRefresh('gaming', null);
+  } else {
+    finishRefresh();
   }
 }
 

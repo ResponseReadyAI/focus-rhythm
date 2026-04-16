@@ -830,6 +830,52 @@ button:focus-visible {
   max-width: 340px;
 }
 
+.btn-refresh-pause {
+  margin-top: 8px;
+  font-size: 0.85rem;
+  padding: 8px 20px;
+  background: var(--surface-2);
+  border: 1px solid #e2e8f0;
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-refresh-pause:hover {
+  background: var(--surface-3);
+}
+
+.eat-message {
+  background: var(--white);
+  border: 1px solid #e2e8f0;
+  border-radius: var(--radius);
+  padding: 24px;
+  text-align: center;
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  box-shadow: var(--shadow-sm);
+}
+
+.gaming-replay-prompt {
+  background: var(--gaming-bg);
+  border: 1px solid var(--gaming-border);
+  border-radius: var(--radius);
+  padding: 20px;
+  text-align: center;
+}
+.gaming-replay-prompt p {
+  font-size: 1rem;
+  color: var(--gaming-text);
+  margin-bottom: 4px;
+}
+.gaming-replay-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
 /* ============================================================
    SCREEN 4 — RETURN CHECK
    ============================================================ */
