@@ -3,7 +3,7 @@
    Handles: offline caching, background notification support
    ============================================================ */
 
-const CACHE_NAME = 'focus-rhythm-v7';
+const CACHE_NAME = 'focus-rhythm-v8';
 
 const ASSETS = [
   '/',

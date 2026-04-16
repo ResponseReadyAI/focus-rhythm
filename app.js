@@ -530,6 +530,7 @@ function stopTick() {
 function tick() {
   const remaining = getRemaining();
   updateTimerDisplay(remaining, totalDuration);
+  updateAddTimeButtons();
   saveSession();
   if (remaining <= 0 && timerState === 'running') onSessionEnd();
 }
@@ -909,12 +910,18 @@ function confirmAddTime() {
   updateAddTimeButtons();
 }
 function updateAddTimeButtons() {
-  const active = timerState === 'running' || timerState === 'paused';
+  const active    = timerState === 'running' || timerState === 'paused';
+  const remaining = active ? getRemaining() : Infinity;
+  // Buttons only unlock once the wind-down phase begins (≤20 min remaining,
+  // or ≤5 min for short sessions that skip the first nudge)
+  const threshold = totalDuration < 30 * 60 ? CONFIG.nudges.secondWarning : CONFIG.nudges.firstWarning;
+  const inWindow  = remaining <= threshold;
+
   const btn15 = document.getElementById('btn-add-15');
   const btn30 = document.getElementById('btn-add-30');
   if (!btn15 || !btn30) return;
-  btn15.disabled = !active || extraTimeAdded > 900;
-  btn30.disabled = !active || extraTimeAdded > 0;
+  btn15.disabled = !active || !inWindow || extraTimeAdded > 900;
+  btn30.disabled = !active || !inWindow || extraTimeAdded > 0;
 }
 
 // ============================================================
@@ -944,7 +951,7 @@ function initCooldownUI() {
   const lightCard = document.querySelector('.light-card');
   if (cd) {
     const unlockTime = new Date(cd.until).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    notice.textContent = 'Rest period active — sessions available at ' + unlockTime + '.';
+    notice.textContent = 'Your work will be better for the break. Step away — sessions open again at ' + unlockTime + '.';
     notice.classList.remove('hidden');
     deepCard.classList.add('cooldown-active');
     lightCard.classList.add('cooldown-active');
